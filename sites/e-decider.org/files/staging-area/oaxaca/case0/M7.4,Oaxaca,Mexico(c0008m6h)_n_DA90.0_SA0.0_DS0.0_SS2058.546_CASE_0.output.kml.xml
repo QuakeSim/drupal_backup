@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+  <Folder>
+    <name>Ground Overlays</name>
+    <description>M7.4,Oaxaca,Mexico(c0008m6h)_n_DA90.0_SA0.0_DS0.0_SS2058.546_CASE_0</description>
+    <GroundOverlay>
+      <Icon>
+        <href>http://gf4.ucs.indiana.edu:8080//insar_precalculated/M7.4_0/M7.4_0.output.png</href>
+      </Icon>
+      <LatLonBox>
+        <north>17.645650736615163</north>
+        <south>15.763688825008982</south>
+        <east>-97.16095539006282</east>
+        <west>-99.12594028304765</west>
+      </LatLonBox>
+    </GroundOverlay>
+  </Folder>
+</kml>

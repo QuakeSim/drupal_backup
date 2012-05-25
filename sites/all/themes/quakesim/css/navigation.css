@@ -1,0 +1,182 @@
+/**
+ * @file
+ * Navigation Styling
+ */
+
+
+/*
+ * The active item in a Drupal menu
+ */
+li a.active {
+  color: #000;
+}
+
+/*
+ * Navigation bar
+ */
+#navigation {
+  /* overflow: hidden; /* Sometimes you want to prevent overlapping with main div. */
+}
+
+#navigation .content ul /* Main menu and secondary menu links */ {
+  margin: 0;
+  padding: 0;
+  text-align: left; /* LTR */
+}
+
+#navigation .content li /* A simple method to get navigation links to appear in one line. */ {
+  float: left; /* LTR */
+  padding: 0 10px 0 0; /* LTR */
+}
+
+.region-navigation {
+}
+
+/*
+ * Main menu and Secondary menu links
+ */
+#main-menu {
+}
+
+#secondary-menu {
+}
+
+/*
+ * Menu blocks
+ */
+.block-menu {
+}
+
+/*
+ * "Menu block" blocks. See http://drupal.org/project/menu_block
+ */
+.block-menu-block {
+	z-index: 100;
+}
+
+#block-menu-block-1 .menu a {
+	color: #CCC;
+	text-decoration: none;
+	vertical-align: middle;
+	font-weight: bold;
+	text-align: center;
+	z-index: 100;
+}
+
+#block-menu-block-1 .menu a:hover {
+	color: #FFF;
+	text-decoration: none;
+	vertical-align: middle;
+	font-weight: bold;
+	text-align: center;
+}
+
+#block-menu-block-1 .menu a.active {
+	color: #FFC;
+	text-decoration: none;
+	vertical-align: middle;
+	font-weight: bold;
+	text-align: center;
+	z-index: 100;
+}
+
+#block-menu-block-1 .menu li {
+	float: left;
+	text-align: center;
+	background-color: #333;
+	vertical-align: bottom;
+	padding-top: 0;
+	padding-right: 0;
+	padding-bottom: 0;
+	padding-left: 5;
+	margin-right: 10;
+	margin-bottom: 0;
+	margin-left: 10;
+	width: 120px;
+	color: #FFF;
+	height: 20px;
+	border: thin ridge #999;
+	position: relative;
+	top: -15px;
+}
+
+#block-menu-block-1 .menu li:hover {
+	float: left;
+	text-align: center;
+	background-color: #666;
+	vertical-align: bottom;
+	padding-top: 0;
+	padding-right: 0;
+	padding-bottom: 0;
+	padding-left: 5;
+	margin-right: 10;
+	margin-bottom: 0;
+	margin-left: 10;
+	width: 120px;
+	color: #FFF;
+	height: 20px;
+	border: thin ridge #999;
+	position: relative;
+	top: -15px;
+	z-index: 100;
+}
+
+#block-menu-block-1 .menu li.expanded li {
+	display: none;
+}
+
+#block-menu-block-1 .menu li:hover li {
+	display: block;
+	z-index: 100;
+}
+
+#block-menu-block-1 .menu li.expanded li.expanded li {
+	display: none;
+	z-index: 100;
+}
+
+#block-menu-block-1 .menu li:hover li:hover li {
+	display: block;
+	z-index: 100;
+}
+
+#block-menu-block-1 ul li {
+	list-style: none;
+	position: relative;
+	left: -15px;
+}
+
+#block-menu-block-1 li li {
+	text-align: left;
+}
+
+#block-menu-block-1 ul li ul li {
+	list-style: none;
+	margin-left: 0px;
+	padding-left: 10px;
+	text-align: left;
+}
+
+#block-menu-block-1 ul li ul li.first {
+	margin-top: 16px;
+}
+
+#block-menu-block-1 ul li ul li ul li.leaf {
+	position: relative;
+	left: 105px;
+	margin-top: 0px;
+}
+
+#block-menu-block-1 ul li ul li ul li.first {
+	position: relative;
+	left: 105px;
+	margin-top: -6px;
+}
+/*
+#block-menu-block-1 ul li ul li ul li.last {
+	position: relative;
+	left: 105px;
+	margin-top: 0px;
+}
+
+*/

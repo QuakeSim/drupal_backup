@@ -1,0 +1,13 @@
+name = Relation block
+description = A block to create relation from entities loaded on the page
+core = 7.x
+dependencies[] = relation
+files[] = tests/relation_dropzone.test
+stylesheets[all][] = relation_dropzone.css
+
+; Information added by drupal.org packaging script on 2011-04-19
+version = "7.x-1.0-alpha1"
+core = "7.x"
+project = "relation"
+datestamp = "1303211516"
+

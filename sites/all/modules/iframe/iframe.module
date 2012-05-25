@@ -1,0 +1,571 @@
+<?php
+
+/**
+ * @file
+ * Defines an iframe field with all attributes
+ */
+
+define('iframe_EXTERNAL', 'external');
+define('iframe_INTERNAL', 'internal');
+define('iframe_FRONT', 'front');
+define('iframe_EMAIL', 'email');
+define('iframe_DOMAINS', 'aero|arpa|biz|com|cat|coop|edu|gov|info|int|jobs|mil|museum|name|nato|net|org|pro|travel|mobi|local');
+
+if (!defined('DEBUG_LEVEL')) {
+  define('DEBUG_LEVEL', 0);
+}
+if (!function_exists('dmsg')) {
+  function dmsg($level, $text) {
+    if ($level <= DEBUG_LEVEL) {
+      error_log('iframe(' . $level . '): ' . $text);
+    }
+  }
+}
+
+
+/**
+ * Implements hook_help().
+ */
+function iframe_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#iframe':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The IFrame module defines an iframe field type for the Field module. Further definable are attributes for styling the iframe, like: url, width, height, title, class, frameborder, scrolling and transparency. See the <a href="@field-help">Field module help page</a> for more information about fields.', array('@field-help' => url('admin/help/field'))) . '</p>';
+      return $output;
+  }
+}
+
+/***************************************************************
+ * Field Type API hooks
+ ***************************************************************/
+ 
+/**
+ * Implements hook_field_info().
+ */
+function iframe_field_info() {
+  return array(
+    'iframe' => array(
+      'label' => t('IFrame'),
+      'description' => t('This field stores the parameters for an iframe.'),
+      'settings' => array(
+	'title' => '',
+	'width' => '',
+	'height' => '',
+	'class' => 'iframe_field_info settings',
+	'frameborder' => 0,
+	'scrolling' => 'auto',
+	'transparency' => 0,
+      ),
+      'instance_settings' => array(
+	'title' => '',
+	'url' => '',
+	'width' => '',
+	'height' => '',
+	'class' => 'iframe_field_info instance_settings',
+	'frameborder' => 0,
+	'scrolling' => 'auto',
+	'transparency' => 0,
+      ),
+      'default_widget' => 'url',
+      'default_formatter' => 'iframedefault',
+    ),
+/*
+    'object' => array(
+      'label' => t('Object'),
+      'description' => t('This field stores the parameters for an iframe, viewed as object tag.'),
+      'settings' => array(
+	'frameborder' => 0,
+	'transparency' => 0,
+      ),
+      'instance_settings' => array(
+	'title' => '',
+	'url' => '',
+	'width' => '',
+	'height' => '',
+      ),
+      'default_widget' => 'url',
+      'default_formatter' => 'objectdefault',
+    ),
+*/
+  );
+}
+
+/**
+ * Implements hook_field_schema().
+ */
+function iframe_field_schema($field) {
+  switch ($field['type']) {
+    case 'iframe':
+      $columns = array(
+        'url' => array(
+          'type' => 'varchar',
+          'length' => 1024,
+          'not null' => FALSE,
+          'sortable' => TRUE,
+        ),
+        'title' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+          'sortable' => TRUE,
+        ),
+        'class' => array(
+          'type' => 'varchar',
+          'length' => '255',
+          'not null' => FALSE,
+        ),
+        'width' => array(
+          'type' => 'varchar',
+          'length' => 4,
+          'not null' => FALSE,
+        ),
+        'height' => array(
+          'type' => 'varchar',
+          'length' => 4,
+          'not null' => FALSE,
+        ),
+        'frameborder' => array(
+          'type' => 'int',
+          'size' => 'tiny',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'scrolling' => array(
+          'type' => 'varchar',
+          'length' => 4,
+          'not null' => TRUE,
+          'default' => 'auto',
+        ),
+        'transparency' => array(
+          'type' => 'int',
+          'size' => 'tiny',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+      );
+      break;
+
+    case 'object':
+      break;
+  }
+  return array(
+    'columns' => $columns,
+  );
+}
+
+
+/**
+ * Implements hook_field_settings_form().
+ */
+function iframe_field_settings_form($field, $instance, $has_data) {
+  $settings = $field['settings'];
+  $form = array();
+
+  if ($field['type'] == 'iframe') {
+    $form['width'] = array(
+      '#type' => 'textfield',
+      '#title' => t('default width of an iframe'),
+      '#default_value' => empty($settings['width'])? '100%' : $settings['width'],
+      '#description' => t('iframes need fix width and height, only numbers are allowed.'),
+      //'#disabled' => $has_data,
+      '#maxlength' => 4,
+      '#size' => 4,
+    );
+    $form['height'] = array(
+      '#type' => 'textfield',
+      '#title' => t('default height of an iframe'),
+      '#default_value' => empty($settings['height'])? '800' : $settings['height'],
+      '#description' => t('iframes need fix width and height, only numbers are allowed.'),
+      '#maxlength' => 4,
+      '#size' => 4,
+    );
+    $form['class'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Additional CSS Class'),
+      '#default_value' => empty($settings['class'])? 'iframe_field_settings_form' : $settings['class'],
+      '#description' => t('When output, this iframe will have this class attribute. Multiple classes should be separated by spaces.'),
+    );
+    $form['frameborder'] = array(
+      '#type' => 'select',
+      '#title' => t('Frameborder'),
+      '#options' => array('0' => t('no frameborder'), 'yes' => t('show frameborder')),
+      '#default_value' => empty($settings['frameborder'])? '0' : $settings['frameborder'],
+      '#description' => t('Frameborder is the border arround the iframe. Mostly people want it silent, so the default value for frameborder is 0 = no.'),
+    );
+    $form['scrolling'] = array(
+      '#type' => 'select',
+      '#title' => t('Scrolling'),
+      '#options' => array('auto' => t('Scrolling automatic'), 'no' => t('Scrolling disabled'), 'yes' => t('Scrolling enabled')),
+      '#default_value' => empty($settings['scrolling'])? 'auto' : $settings['scrolling'],
+      '#description' => t('Scrollbars help the user to reach all iframe content despite the real height of the iframe content. Please disable it only if You know what You are doing.'),
+    );
+    $form['transparency'] = array(
+      '#type' => 'select',
+      '#title' => t('Transparency'),
+      '#options' => array('0' => t('no transparency'), 'yes' => t('allow transparency')),
+      '#default_value' => empty($settings['transparency'])? '0' : $settings['transparency'],
+      '#description' => t('Allow transparency per CSS in the outer iframe tag. You have to set background-color:transparent in Your IFrame too for the body tag!'),
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Implements hook_field_instance_settings_form().
+ */
+function iframe_field_instance_settings_form($field, $instance) {
+  $settings = $instance['settings'];
+  $form = array();
+
+  if ($field['type'] == 'iframe') {
+    $form['width'] = array(
+      '#type' => 'textfield',
+      '#title' => t('width of an iframe'),
+      '#default_value' => empty($settings['width'])? '100%' : $settings['width'],
+      '#description' => t('iframes need fix width and height, only numbers are allowed.'),
+      //'#disabled' => $has_data,
+      '#maxlength' => 4,
+      '#size' => 4,
+      //'#element_validate' => array('_element_validate_number'),
+    );
+    $form['height'] = array(
+      '#type' => 'textfield',
+      '#title' => t('height of an iframe'),
+      '#default_value' => empty($settings['height'])? '800' : $settings['height'],
+      '#description' => t('iframes need fix width and height, only numbers are allowed.'),
+      '#maxlength' => 4,
+      '#size' => 4,
+    );
+    $form['class'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Additional CSS Class'),
+      '#default_value' => empty($settings['class'])? 'iframe_field_instance_settings_form' : $settings['class'],
+      '#description' => t('When output, this iframe will have this class attribute. Multiple classes should be separated by spaces.'),
+    );
+    $form['frameborder'] = array(
+      '#type' => 'select',
+      '#title' => t('Frameborder'),
+      '#options' => array('0' => t('no frameborder'), 'yes' => t('show frameborder')),
+      '#default_value' => empty($settings['frameborder'])? '0' : $settings['frameborder'],
+      '#description' => t('Frameborder is the border arround the iframe. Mostly people want it silent, so the default value for frameborder is 0 = no.'),
+    );
+    $form['scrolling'] = array(
+      '#type' => 'select',
+      '#title' => t('Scrolling'),
+      '#options' => array('auto' => t('Scrolling automatic'), 'no' => t('Scrolling disabled'), 'yes' => t('Scrolling enabled')),
+      '#default_value' => empty($settings['scrolling'])? 'auto' : $settings['scrolling'],
+      '#description' => t('Scrollbars help the user to reach all iframe content despite the real height of the iframe content. Please disable it only if You know what You are doing.'),
+    );
+    $form['transparency'] = array(
+      '#type' => 'select',
+      '#title' => t('Transparency'),
+      '#options' => array('0' => t('no transparency'), 'yes' => t('allow transparency')),
+      '#default_value' => empty($settings['transparency'])? '0' : $settings['transparency'],
+      '#description' => t('Allow transparency per CSS in the outer iframe tag. You have to set background-color:transparent in Your IFrame too for the body tag!'),
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Implements hook_field_validate().
+ *
+ * Possible error codes:
+ * - 'widthheight': The value should be between 1 and 9999, or between 1% and 100%
+ */
+function iframe_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
+  foreach ($items as $delta => $item) {
+    if (empty($item['width']) || $item['width']<1) {
+      $errors[$field['field_name']][$langcode][$delta][] = array(
+        'error' => 'widthsize',
+        'message' => t('%name: the value of width may be no less than 1.', array('%name' => t($instance['label']))),
+      );
+    }
+    if (empty($item['height']) || $item['height']<1) {
+      $errors[$field['field_name']][$langcode][$delta][] = array(
+        'error' => 'heightsize',
+        'message' => t('%name: the value of height may be no less than 1.', array('%name' => t($instance['label']))),
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_field_presave().
+ */
+/*
+function iframe_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  if ($field['type'] == 'iframe') {
+    //
+  }
+}
+*/
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function iframe_field_is_empty($item, $field) {
+  if (empty($item['url'])) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/***********************************************************************
+ *  Field Type API: Formatter
+ **********************************************************************/
+ 
+/**
+ * Implements hook_field_formatter_info().
+ */
+function iframe_field_formatter_info() {
+  return array(
+    'iframedefault' => array(
+      'label' => t('Title, over iframe (default)'),
+      'field types' => array('iframe'),
+    ),
+    'iframeonly' => array(
+      'label' => t('IFrame without title'),
+      'field types' => array('iframe'),
+    ),
+    'iframeasurl' => array(
+      'label' => t('A link with the given title'),
+      'field types' => array('iframe'),
+    ),
+    'iframeasurlwithuri' => array(
+      'label' => t('A link with the uri as title'),
+      'field types' => array('iframe'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function iframe_field_formatter_view($object_type, $object, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  
+  if ($display['type']=='iframedefault') {
+      foreach ($items as $delta => $item) {
+        $element[$delta] = '<p>' . iframe_formatter_default($item, $delta) . '</p>';
+      }
+  }
+  elseif ($display['type']=='iframeonly') {
+      foreach ($items as $delta => $item) {
+        $element[$delta] = '<p>' . iframe_formatter_iframeonly($item, $delta) . '</p>';
+      }
+  }
+  elseif ($display['type']=='iframeasurl') {
+      foreach ($items as $delta => $item) {
+        $element[$delta] = '<p>' . iframe_formatter_asurl($item, $delta) . '</p>';
+      }
+  }
+  elseif ($display['type']=='iframeasurlwithuri') {
+      foreach ($items as $delta => $item) {
+        $element[$delta] = '<p>' . iframe_formatter_asurl_withuri($item, $delta) . '</p>';
+      }
+  }
+  return $element;
+}
+
+/**
+ * Formatter function for 'default' text field formatter.
+ */
+function iframe_formatter_default($item) {
+  dmsg(3, 'func iframe_formatter_default');
+  // If no url given display nothing.
+  if (empty($item['url'])) {
+    return '';
+  }
+  // Display all
+  return iframe_iframe($item['display_title'], $item['url'], $item);
+}
+
+/**
+ * Formatter function for 'iframeonly' text field formatter.
+ */
+function iframe_formatter_iframeonly($item) {
+  dmsg(3, 'func iframe_formatter_iframeonly');
+  // If no url given display nothing.
+  if (empty($item['url'])) {
+    return '';
+  }
+  // Display all
+  return iframe_iframe('', $item['url'], $item);
+}
+
+/**
+ * Formatter function for 'asurl' text field formatter.
+ */
+function iframe_formatter_asurl($item) {
+  dmsg(3, 'func iframe_formatter_asurl');
+  // If no url given display nothing.
+  if (empty($item['url'])) {
+    return '';
+  }
+  // Display all
+  $linktext = empty($item['display_title'])? $item['url'] : $item['display_title'];
+  return l($linktext, $item['url'], $item);
+}
+
+/**
+ * Formatter function for 'asurl_withuri' text field formatter.
+ */
+function iframe_formatter_asurl_withuri($item) {
+  dmsg(3, 'func iframe_formatter_asurl_withuri');
+  // If no url given display nothing.
+  if (empty($item['url'])) {
+    return '';
+  }
+  // Display all
+  $linktext = $item['url'];
+  return l($linktext, $item['url'], $item);
+}
+
+/*
+ * like central function
+ * form the iframe code
+ */
+function iframe_iframe($text, $path, $options = FALSE) {
+  dmsg(3, 'func iframe_iframe');
+  if (!$options) {
+    $options = array();
+  }
+  // Merge in defaults.
+//dmsg(4, 'IFIF options=' . implode(" ++ ", explode("\n", print_r($options, TRUE))));
+  $options += array(
+    'html' => FALSE,
+  );
+  if (!isset($options['width'])) {
+    $options['width'] = '100%';
+  }
+  if (!isset($options['height'])) {
+    $options['height'] = '701';
+  }
+  if (!isset($options['frameborder']) || empty($options['frameborder'])) {
+    $options['frameborder'] = '0';
+  }
+  if (!isset($options['scrolling']) || empty($options['scrolling'])) {
+    $options['scrolling'] = 'auto';
+  }
+  if (!isset($options['transparency']) || empty($options['transparency'])) {
+    $options['transparency'] = '0';
+  }
+
+  $htmlid = '';
+  if (isset($options['html-id']) && !empty($options['html-id'])) {
+    $htmlid = ' id="' . $options['html-id'] . '" name="' . $options['html-id'] . '"';
+  }
+
+  // Append active class.
+  if ($path == $_GET['q'] || ($path == '<front>' && drupal_is_front_page())) {
+    if (isset($options['class'])) {
+      $options['class'] .= ' active';
+    }
+    else {
+      $options['class'] = 'active';
+    }
+  }
+
+  // Remove all HTML and PHP tags from a tooltip. For best performance, we act only
+  // if a quick strpos() pre-check gave a suspicion (because strip_tags() is expensive).
+  if (isset($options['title']) && strpos($options['title'], '<') !== FALSE) {
+    $options['title'] = strip_tags($options['title']);
+  }
+  $options_link = array(); $options_link['attributes'] = array();
+  $options_link['attributes']['title'] = $options['title'];
+
+  include_once(drupal_get_path('module', 'content') .'/includes/content.crud.inc');
+
+  return (empty($text)? '' : '<div class="iframe_title">' . ($options['html'] ? $text : check_plain($text)) . '</div>') .
+    '<iframe src="' . check_url(url($path, $options)) . '"' . drupal_attributes($options) .
+    $htmlid .
+    '>' .
+    t('Your browser does not support iframes. But You can use the following link.') . ' ' . l('Link', url($path, $options), $options_link) . '</iframe>';
+}
+
+/**************************************************************************
+ * Field Type API: Widget
+ **************************************************************************/
+ 
+/**
+ * Implements hook_field_widget_info().
+** Anzeige auf der Feld-Einstellungsseite zum speziellen Inhaltstyp, zusätzlich zu den echten Feldern.
+ */
+function iframe_field_widget_info() {
+  return array(
+    'url' => array(
+	  'label' => t('Text field'),
+	  'field types' => array('iframe'),
+          'settings' => array('size' => 255),
+	),
+  );
+}
+
+/**
+ * Implements hook_field_widget_settings_form().
+ */
+function iframe_field_widget_settings_form($field, $instance) {
+  $widget = $instance['widget'];
+  $settings = $widget['settings'];
+
+  $form = array();
+/*
+    $form['field_widget_settings_form'] = array(
+      '#type' => 'textfield',
+      '#title' => t('field_widget_settings_form'),
+      '#default_value' => $settings['width'],
+      '#required' => TRUE,
+      //'#element_validate' => array('_element_validate_integer_positive'),
+    );
+*/
+
+  return $form;
+}
+
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function iframe_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $base) {
+  $element = $base;
+drupal_set_message(htmlspecialchars(print_r($element, TRUE)), 'error');
+  switch ($instance['widget']['type']) {
+    case 'iframe':
+      $element['url'] = $base + array(
+        '#type' => 'textfield',
+        '#default_value' => isset($items[$delta]['url']) ? $items[$delta]['url'] : NULL,
+        '#size' => 120,
+      );
+      $element['width'] = $base + array(
+        '#type' => 'textfield',
+        '#default_value' => isset($items[$delta]['width']) ? $items[$delta]['width'] : NULL,
+        '#size' => 4,
+      );
+      $element['height'] = $base + array(
+        '#type' => 'textfield',
+        '#default_value' => isset($items[$delta]['height']) ? $items[$delta]['height'] : NULL,
+        '#size' => 4,
+      );
+      break;
+  }
+  return $element;
+}
+
+
+/**
+ * Implements hook_field_widget_error().
+ */
+function iframe_field_widget_error($element, $error) {
+  switch ($error['error']) {
+    case 'widthsize':
+      form_error($element['width'], $error['message']);
+	  break;
+    case 'heightsize':
+      form_error($element['height'], $error['message']);
+	  break;
+  }
+}

@@ -1,0 +1,51 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the ga_login module.
+ *
+ */
+
+// $Id
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function ga_login_schema() {
+  $schema['ga_login'] = array(
+    'description' => 'Table that contains ga specific data.',
+    'fields' => array(
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'Unique user name + site name.',
+      ),
+      'keydata' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+        'description' => 'Key data for GA.',
+      ),
+    ),
+    'primary key' => array('name'),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function ga_login_uninstall() {
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_uninstall_schema('ga_login')
+}
+
+/**
+ * Implements hook_install().
+ */
+function ga_login_install() {
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_install_schema('ga_login')
+}
+

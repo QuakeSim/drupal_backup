@@ -1,0 +1,184 @@
+<?php
+// $Id
+
+/**
+ * Implements hook_menu().
+ *
+ * @see: http://api.drupal.org/api/function/hook_menu/6
+ */
+function ga_login_menu() {
+  $items = array();
+  $items['ga_login/create'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => 'Create GA login',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ga_login_create_form'),
+    'access arguments' => array('administer users'),
+  );
+  $items['ga_login/test'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => 'Test GA login',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ga_login_test_form'),
+    'access arguments' => array('administer users'),
+  );
+
+  return $items;
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function ga_login_create_form($form, &$form_state) {
+  $result = db_select('users')->fields('users', array('uid', 'name'))->execute();
+  foreach ($result as $account) {
+    $options[$account->uid] = check_plain($account->name);
+  }
+  $form['info'] = array(
+    '#type' => 'markup',
+    '#value' => '<p>' . t('Everytime you use this form a new key will be generated!') . '</p>',
+  );
+  $form['uid'] = array(
+    '#title' => t('User'),
+    '#type' => 'select',
+    '#options' => $options,
+    '#required' => TRUE,
+  );
+  $form['tokentype'] = array(
+    '#title' => t('Token type'),
+    '#type' => 'select',
+    '#options' => array(
+      'TOTP' => 'TOTP',
+      'HOTP' => 'HOTP',
+    ),
+    '#default_value' => 'TOTP',
+    '#required' => TRUE,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Create code'),
+  );
+  return $form;
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function ga_login_test_form($form, &$form_state) {
+  $result = db_select('users')->fields('users', array('uid', 'name'))->execute();
+  foreach ($result as $account) {
+    $options[$account->uid] = check_plain($account->name);
+  }
+
+  $form['uid'] = array(
+    '#title' => t('User'),
+    '#type' => 'select',
+    '#options' => $options,
+    '#required' => TRUE,
+  );
+  $form['code'] = array(
+    '#title' => t('Code'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Check code'),
+  );
+  return $form;
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function ga_login_create_form_submit($form, $form_state) {
+  // ini_set('display_errors', 1);
+  $uid = $form_state['values']['uid'];
+  $account = user_load($uid);
+  module_load_include('php', 'ga_login', 'ga_login.class');
+  $ga = new ga_loginGA(10);
+  if (!$ga->hasToken($account->name . '@' . variable_get('site_name', 'Drupal'))) {
+    $key = $ga->setUser($account->name . '@' . variable_get('site_name', 'Drupal'), 'TOTP');
+  }
+  $url = $ga->createUrl($account->name . '@' . variable_get('site_name', 'Drupal'));
+  drupal_set_message($url);
+  if (function_exists('theme_qr_codes')) {
+    $img = theme_qr_codes(array('data' => $url));
+    drupal_set_message($img);
+  }
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function ga_login_test_form_submit($form, $form_state) {
+  // ini_set('display_errors', 1);
+  $uid = $form_state['values']['uid'];
+  $code = $form_state['values']['code'];
+  $account = user_load($uid);
+  module_load_include('php', 'ga_login', 'ga_login.class');
+  $ga = new ga_loginGA(10);
+  $keyok = $ga->authenticateUser($account->name . '@' . variable_get('site_name', 'Drupal'), $code);
+  if ($keyok) {
+    drupal_set_message('Authentication OK');
+  }
+  else {
+    drupal_set_message('Authentication failed');
+    drupal_set_message($ga->getErrorText());
+  }
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function ga_login_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'user_login_block' || $form_id == 'user_login') {
+    if (TRUE) { /* @TODO: When to enable/disable */
+      $form['#validate'] = array(
+        'user_login_name_validate',
+        'ga_login_user_login_validate',
+        'user_login_authenticate_validate',
+        'user_login_final_validate',
+      );
+      $form['gacode'] = array(
+        '#type' => 'textfield',
+        '#title' => 'Code',
+        '#maxlength' => 6,
+        '#size' => 6,
+        '#required' => FALSE,
+      );
+
+      $form['name']['#weight'] = 1;
+      $form['pass']['#weight'] = 2;
+      $form['gacode']['#weight'] = 3;
+      $form['submit']['#weight'] = 4;
+      if (isset($form['links'])) {
+        $form['links']['#weight'] = 5;
+      }
+    }
+  }
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function ga_login_user_login_validate($form, &$form_state) {
+  if (TRUE) { /* @TODO: When to enable/disable */
+    $code = $form_state['values']['gacode'];
+    $name = $form_state['values']['name'];
+    module_load_include('php', 'ga_login', 'ga_login.class');
+    $ga = new ga_loginGA(10);
+    if ($ga->hasToken($name . '@' . variable_get('site_name', 'Drupal'))) {
+      $keyok = $ga->authenticateUser($name . '@' . variable_get('site_name', 'Drupal'), $code);
+      if (!$keyok) {
+        form_set_error('gacode', t("You're code isn't valid."));
+      }
+    }
+  }
+}

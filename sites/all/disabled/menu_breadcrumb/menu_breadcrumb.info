@@ -1,0 +1,14 @@
+name = Menu breadcrumb
+description = Allows you to use the menu the current page belongs to for the breadcrumb.
+dependencies[] = menu
+core = "7.x"
+files[] = menu_breadcrumb.install
+files[] = menu_breadcrumb.module
+configure = admin/config/menu_breadcrumb
+
+; Information added by drupal.org packaging script on 2011-02-25
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "menu_breadcrumb"
+datestamp = "1298619635"
+

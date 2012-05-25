@@ -1,0 +1,180 @@
+/**
+ * @file
+ * Views Styling
+ */
+
+/* Content */
+
+.view-content {
+	clear: both;
+	width: 100%;
+	padding-left: 5px;
+	padding-right: 5px;
+	vertical-align: top;
+}
+
+
+.pane-content {
+	border: thin solid #CD403A;
+	margin-top: -11px;
+	width: 100%;
+	padding-right: 8px;
+	clear: both;
+	float: left;
+}
+
+.views-field-body {
+	width: 100%;
+}
+
+.field-name-body {
+	padding-left: 5px;
+}
+
+/*.content {
+		border: thin solid #CD403A;
+}*/
+
+/* Rows */
+
+.views-row , .views-row-1, .views-row-odd, .views-row-first, .views-row-last {
+	margin-top: 10px;
+	float: left;
+	position: relative;
+	left: 0px;
+	display: block;
+	clear: right;
+	width: 100%;
+	top: 0px;
+}
+
+/* Images */
+
+.views-field-picture {
+	display: inline;
+	float: left;
+	padding-right: 5px;
+	padding-top: 2px;
+}
+
+.views-field-field-image {
+	display: inline;
+	float: left;
+	padding-right: 5px;
+	padding-top: 16px;
+}
+
+/* Titles */
+
+.pane-title {
+	clear: both;
+	float: left;
+}
+
+h2.pane-title {
+	width: 100%;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-right: 5px;
+	background-color: #CD403A;
+	color: #EFECE2;
+}
+
+.views-field-field-title{
+	font-style: italic;
+	font-weight: bold;
+}
+
+.views-field-title {
+	font-weight: bold;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+/* Posted */
+
+.views-field-created {
+	font-style: italic;	
+}
+
+/* Custom Fields */
+
+.views-field-field-lastname {
+	font-weight: bold;
+	float: left;
+}
+
+.views-field-field-institution {
+	font-style: italic;
+}
+
+.views-field-field-bio {
+	padding-top: 10px;
+	clear: right;
+	padding-right: 10px;
+	padding-bottom: 10px;
+}
+
+.pane-software .pane-content .view-display-id-default {
+	border: thin solid #CD403A;
+	width: 100%;
+	padding-right: 8px;
+	clear: both;
+	float: left;
+}
+
+.view-software.view-display-id-default .views-field-title {
+	width: 100.5%;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	background-color: #CD403A;
+	padding-left: 5px;
+	clear: both;
+	position: relative;
+	top: -10px;
+	margin-left: -5px;
+}
+
+.view-software .view-display-id-SW_summary .views-field-title {
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-left: 5px;
+	clear: both;
+	position: relative;
+	top: -10px;
+	margin-left: -5px;
+}
+
+.views-field-field-swimage {
+	display: inline;
+	float: left;
+	padding-right: 4px;
+	margin-top: 19px;	
+}
+
+.pane-software view-display-id-sw_logos .pane-content {
+	margin-top: 18px;
+	border-top-style: none;
+	border-right-style: none;
+	border-bottom-style: none;
+	border-left-style: none;
+}
+
+.views-field-field-logoimage img {
+	padding-left: 5px;
+	padding-top: 10px;
+}
+
+.views-field-field-logoimage a {
+	background-image: url(../images/SW-logo.png);
+	background-repeat: no-repeat;
+	padding-left: 5px;
+	height: 72px;
+	display: block;
+}
+
+.views-field-field-logoimage a.active {
+	background-image: url(../images/SW-logo-active.png);
+	background-repeat: no-repeat;
+	display: block;
+}

@@ -1,0 +1,22 @@
+name = "Token insert (text)"
+description = "Allows you to insert tokens in a textfield with one click of a button. Tokens are inserted in the format Token Filter (http://drupal.org/project/token_filter) works with."
+core = 7.x
+version = "7.x-1.0"
+package = Token insert
+dependencies[] = token
+files[] = token_insert_text.js
+files[] = token_insert_text.module
+
+; Information added by drupal.org packaging script on 2011-02-25
+version = "7.x-2.x-dev"
+core = "7.x"
+project = "token_insert"
+datestamp = "1298620420"
+
+
+; Information added by drupal.org packaging script on 2011-08-01
+version = "7.x-2.0"
+core = "7.x"
+project = "token_insert"
+datestamp = "1312201360"
+

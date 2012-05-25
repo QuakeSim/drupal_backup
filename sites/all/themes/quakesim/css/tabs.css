@@ -1,0 +1,187 @@
+/**
+ * @file
+ * Tabs Styling
+ *
+ * Adds styles for the primary and secondary tabs.
+ *
+ * Compare this with default CSS found in the system module's stylesheet (a copy
+ * of which is in drupal6-reference.css, line 510.)
+ */
+
+
+div.tabs {
+  margin: 0 0 5px 0;
+}
+
+ul.primary {
+  margin: 0;
+  padding: 0 0 0 10px; /* LTR */
+  border-width: 0;
+  list-style: none;
+  white-space: nowrap;
+  line-height: normal;
+  background: url(../images/tab-bar.png) repeat-x left bottom;
+}
+
+ul.primary li {
+  float: left; /* LTR */
+  margin: 0;
+  padding: 0;
+}
+
+ul.primary li a {
+  display: block;
+  height: 24px;
+  margin: 0;
+  padding: 0 0 0 5px; /* width of tab-left.png */
+  border-width: 0;
+  font-weight: bold;
+  text-decoration: none;
+  color: #777;
+  background-color: transparent;
+  background: url(../images/tab-left.png) no-repeat left -38px;
+}
+
+ul.primary li a .tab {
+  display: block;
+  height: 20px; /* 24px (parent) - 4px (padding) */
+  margin: 0;
+  padding: 4px 13px 0 6px;
+  border-width: 0;
+  line-height: 20px;
+  background: url(../images/tab-right.png) no-repeat right -38px;
+}
+
+ul.primary li a:hover {
+  border-width: 0;
+  background-color: transparent;
+  background: url(../images/tab-left.png) no-repeat left -76px;
+}
+
+ul.primary li a:hover .tab {
+  background: url(../images/tab-right.png) no-repeat right -76px;
+}
+
+ul.primary li.active a,
+ul.primary li.active a:hover {
+  border-width: 0;
+  color: #000;
+  background-color: transparent;
+  background: url(../images/tab-left.png) no-repeat left 0;
+}
+
+ul.primary li.active a .tab,
+ul.primary li.active a:hover .tab {
+  background: url(../images/tab-right.png) no-repeat right 0;
+}
+
+ul.secondary {
+	margin: 0;
+	padding: 0 0 0 5px; /* LTR */
+	/*  border-bottom: 1px solid #c0c0c0;*/
+  list-style: none;
+	white-space: nowrap;
+	background-color: transparent;
+	border-top-style: none;
+	border-right-style: none;
+	border-bottom-style: none;
+	border-left-style: none;/*  background: url(../images/tab-secondary-bg.png) repeat-x left bottom;*/
+}
+
+ul.secondary li {
+  float: left; /* LTR */
+  margin: 0 5px 0 0;
+  padding: 5px 0;
+  border-right: none; /* LTR */
+}
+
+ul.secondary a {
+	display: block;
+	margin: 0;
+	padding: 0;
+	border: 1px solid #c0c0c0;
+	text-decoration: none;
+	color: #777;
+	background-image: url(../images/tab-secondary.png);
+	background-repeat: repeat-x;
+	background-position: left -56px;
+	height: 20px;
+}
+
+ul.secondary a .tab {
+  display: block;
+  height: 18px; /* 24px (parent) - 6px (padding) */
+  margin: 0;
+  padding: 3px 8px;
+  line-height: 18px;
+}
+
+ul.secondary a:hover {
+  background: url(../images/tab-secondary.png) repeat-x left bottom;
+}
+
+ul.secondary a.active,
+ul.secondary a.active:hover {
+  border: 1px solid #c0c0c0;
+  color: #000;
+  background: url(../images/tab-secondary.png) repeat-x left top;
+}
+
+/**
+ *  Style from the new (great!) ZEN THEME for Drupal 
+ * http://drupal.org/project/zen
+ */
+ 
+.quicktabs-wrapper {
+	margin-left: -12px;
+	width: 100%;
+}
+
+.quicktabs_main.quicktabs-style-zen{
+	clear:both;
+	margin-left: 20px;
+}
+ul.quicktabs-tabs.quicktabs-style-zen{
+  margin:0 0 10px 0;
+  padding:0 0 3px;
+  font-size:1em;
+  list-style: none;
+  height:21px;
+  background:transparent url(images/tab-bar.png) repeat-x left bottom;
+}
+*html ul.quicktabs-tabs.quicktabs-style-zen li{
+  margin-bottom:-5px;
+}
+ul.quicktabs-tabs.quicktabs-style-zen li{
+  float: left;
+  margin:0 5px;
+  padding: 0 0 0 5px;
+  background:transparent url(images/tab-left-ie6.png) no-repeat left -38px;
+}
+ul.quicktabs-tabs.quicktabs-style-zen li a{
+  font:bold 12px/170% Verdana;
+  font-size-adjust:none;
+  display: block;
+  margin: 0;
+  padding:4px 17px 0px 12px;
+  border-width: 0;
+  font-weight:bold;
+  text-decoration:none;
+  background: transparent url(images/tab-right-ie6.png) no-repeat right -38px;
+}
+ul.quicktabs-tabs.quicktabs-style-zen li:hover a{
+  border-width: 0;
+  background:transparent url(images/tab-right-ie6.png) no-repeat right -76px;
+}
+quicktabs-tabs.quicktabs-style-zen li:hover{
+  background:transparent url(images/tab-left-ie6.png) no-repeat left -76px;
+}
+ul.quicktabs-tabs.quicktabs-style-zen li.active a,
+ul.quicktabs-tabs.quicktabs-style-zen li.active a:hover{
+  text-decoration:none;
+  border-width: 0;
+  background:transparent url(images/tab-right-ie6.png) no-repeat right 0;
+}
+ul.quicktabs-tabs.quicktabs-style-zen li.active{
+  background:transparent url(images/tab-left-ie6.png) no-repeat left 0;
+}

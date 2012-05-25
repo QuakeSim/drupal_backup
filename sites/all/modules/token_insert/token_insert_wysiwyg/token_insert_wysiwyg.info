@@ -1,0 +1,20 @@
+name = "Token insert (wysiwyg)"
+description = "Allows you to insert tokens in a wysiwyg field. Tokens are inserted in the format Token Filter works with."
+core = 6.x
+version = "6.x-1.0"
+package = Token insert
+dependencies[] = token
+
+; Information added by drupal.org packaging script on 2011-02-25
+version = "7.x-2.x-dev"
+core = "7.x"
+project = "token_insert"
+datestamp = "1298620420"
+
+
+; Information added by drupal.org packaging script on 2011-08-01
+version = "7.x-2.0"
+core = "7.x"
+project = "token_insert"
+datestamp = "1312201360"
+
