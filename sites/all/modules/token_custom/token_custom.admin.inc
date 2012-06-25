@@ -16,29 +16,29 @@ function token_custom_type_list_page() {
   $variables = array();
   $types = token_custom_type_load_multiple();
 
-  $variables['rows'][] = array(
-    $types['custom']->name,
-    $types['custom']->machine_name,
-    $types['custom']->description,
-    '',
-  );
-  unset($types['custom']);
-
   foreach ($types as $type) {
-    $edit_url = 'admin/structure/token-custom/type/' . $type->machine_name . '/edit';
-    $delete_url = 'admin/structure/token-custom/type/' . $type->machine_name . '/delete';
-    $variables['rows'][] = array(
+    $row = array(
       $type->name,
       $type->machine_name,
       $type->description,
-      l(t('Edit'), $edit_url) . ' / ' . l(t('Delete'), $delete_url),
     );
+
+    // Do not show edit/delete links for the custom type.
+    if ($type->machine_name != TOKEN_CUSTOM_DEFAULT_TYPE) {
+      $path_base = 'admin/structure/token-custom/type/' . $type->machine_name . '/';
+      $row[] = l(t('Edit'), $path_base . 'edit') . ' / ' . l(t('Delete'), $path_base . 'delete');
+    }
+    else {
+      $row[] = '';
+    }
+
+    $variables['rows'][] = $row;
   }
 
   $variables['header'] = array(
     t('Name'),
     t('Machine name'),
-    t('Description'), "");
+    t('Description'), '');
 
   return theme('table', $variables);
 }
@@ -204,8 +204,16 @@ function token_custom_edit_form($form, &$form_state, $op, $token = NULL) {
 
   $form['save'] = array(
     '#type'   => 'submit',
-    '#value' => 'Save token',
+    '#value' => t('Save'),
   );
+
+  if ($op == 'edit') {
+    $form['delete'] = array(
+      '#type'   => 'submit',
+      '#value' => t('Delete'),
+    );
+  }
+
 
   return $form;
 }
@@ -266,8 +274,15 @@ function token_custom_type_edit_form($form, &$form_state, $op, $type = NULL) {
 
   $form['save'] = array(
     '#type'   => 'submit',
-    '#value' => 'Save token type',
+    '#value' => t('Save'),
   );
+
+  if ($op == 'edit') {
+    $form['delete'] = array(
+      '#type'   => 'submit',
+      '#value' => t('Delete'),
+    );
+  }
 
   return $form;
 }
@@ -282,14 +297,34 @@ function token_custom_type_edit_form($form, &$form_state, $op, $type = NULL) {
  *   The submited form state.
  */
 function token_custom_type_edit_form_submit($form, &$form_state) {
-  $type = array(
-    'name' => $form_state['values']['name'],
-    'machine_name' => $form_state['values']['machine_name'],
-    'description' => $form_state['values']['description'],
-  );
-  token_custom_type_save($type);
+  if ($form_state['token_custom']['op'] == 'edit'
+      && $form_state['triggering_element']['#id'] == 'edit-delete') {
+    $form_state['redirect'] = 'admin/structure/token-custom/type/'
+                            . $form_state['values']['machine_name'] . '/delete';
+  }
+  else {
+    $type = array(
+      'name' => $form_state['values']['name'],
+      'machine_name' => $form_state['values']['machine_name'],
+      'description' => $form_state['values']['description'],
+    );
 
-  $form_state['redirect'] = 'admin/structure/token-custom/type';
+    if (!token_custom_type_save($type)) {
+      drupal_set_message(
+        t('There was a problem saving token type <em>@machine_name</em>. Please contact the site administrator.',
+          array('@machine_name' => $form_state['values']['machine_name'])),
+        'error'
+      );
+    }
+    else {
+      drupal_set_message(
+        t('Token type <em>@machine_name</em> saved.',
+          array('@machine_name' => $form_state['values']['machine_name']))
+      );
+    }
+
+    $form_state['redirect'] = 'admin/structure/token-custom/type';
+  }
 }
 
 
@@ -304,6 +339,14 @@ function token_custom_type_edit_form_submit($form, &$form_state) {
  *   The form state array.
  */
 function token_custom_edit_form_submit($form, &$form_state) {
+
+  if ($form_state['token_custom']['op'] == 'edit'
+    && $form_state['triggering_element']['#id'] == 'edit-delete') {
+    $form_state['redirect'] = 'admin/structure/token-custom/'
+                            . $form_state['values']['machine_name'] . '/delete';
+    return;
+  }
+
   $form_state['values']['is_new'] = $form_state['token_custom']['op'] == 'add';
 
   $token = array(
@@ -316,7 +359,6 @@ function token_custom_edit_form_submit($form, &$form_state) {
     'is_new' => $form_state['values']['is_new'],
   );
 
-  // FIXME Error msgs should probably go in the CRUD routines
   if (!token_custom_save($token)) {
     drupal_set_message(
       t('There was a problem saving token <em>@machine_name</em>. Please contact the site administrator.',
@@ -350,12 +392,11 @@ function token_custom_edit_form_submit($form, &$form_state) {
  */
 function token_custom_delete_confirm_form($form, &$form_state, $token) {
   $form_state['token_custom']['token'] = $token;
-  $caption = '<p>' . t('This action cannot be undone.') . '</p>';
   return confirm_form(
     $form,
     t('Are you sure you want to delete token <em>@machine_name</em> ?', array('@machine_name' => $token->machine_name)),
     'admin/structure/token-custom',
-    $caption,
+    NULL,
     t('Delete'),
     t('Cancel')
   );
@@ -372,7 +413,6 @@ function token_custom_delete_confirm_form($form, &$form_state, $token) {
  */
 function token_custom_delete_confirm_form_submit($form, &$form_state) {
 
-  // FIXME Error msgs should probably go in the CRUD routines
   if (token_custom_delete($form_state['token_custom']['token']->machine_name)) {
     drupal_set_message(
       t('Token <em>@machine_name</em> deleted.',
@@ -387,4 +427,61 @@ function token_custom_delete_confirm_form_submit($form, &$form_state) {
     );
   }
   $form_state['redirect'] = 'admin/structure/token-custom';
+}
+
+
+/**
+ * Confirm custom token type's delete action.
+ *
+ * @param array $form
+ *   The delete token form.
+ * @param array $form_state
+ *   Form state array
+ * @param object $token_type
+ *   The token type to delete.
+ *
+ * @return array
+ *   The complete form.
+ */
+function token_custom_type_delete_confirm_form($form, &$form_state, $token_type) {
+  $form_state['token_custom']['token_type'] = $token_type;
+  return confirm_form(
+    $form,
+    t('Are you sure you want to delete token type <em>@machine_name</em> ?', array('@machine_name' => $token_type->machine_name)),
+    'admin/structure/token-custom',
+    NULL,
+    t('Delete'),
+    t('Cancel')
+  );
+}
+
+
+/**
+ * Delete token type form submit callback.
+ *
+ * @param array $form
+ *   The form array.
+ * @param array $form_state
+ *   The form state array.
+ */
+function token_custom_type_delete_confirm_form_submit($form, &$form_state) {
+
+  if (token_custom_type_delete($form_state['token_custom']['token_type']->machine_name)) {
+    drupal_set_message(
+      t('Token type <em>@machine_name</em> deleted. All tokens using it were moved to type <em>@default_type</em>.',
+        array(
+          '@machine_name' => $form_state['token_custom']['token_type']->machine_name,
+          '@default_type' => TOKEN_CUSTOM_DEFAULT_TYPE,
+        )
+      )
+    );
+  }
+  else {
+    drupal_set_message(
+      t('There was a problem deleting token type <em>@machine_name</em>. Please contact the site administrator.',
+        array('@machine_name' => $form_state['token_custom']['token_type']->machine_name)),
+      'error'
+    );
+  }
+  $form_state['redirect'] = 'admin/structure/token-custom/type';
 }

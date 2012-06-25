@@ -8,6 +8,12 @@
  */
 
 
+/*
+ * The default token type machine name.
+ */
+define('TOKEN_CUSTOM_DEFAULT_TYPE', 'custom');
+
+
 /**
  * Implements of hook_help().
  */
@@ -37,7 +43,7 @@ function token_custom_permission() {
     ),
     'list custom tokens' => array(
       'title' => t("Access the custom token's administration page."),
-      'description' => t('Create/edit/delete custom tokens using markup or PHP.'),
+      'description' => t('View custom tokens.'),
     ),
   );
 }
@@ -115,7 +121,8 @@ function token_custom_menu() {
     'title'          => 'Edit token type',
     'page callback'  => 'drupal_get_form',
     'page arguments' => array('token_custom_type_edit_form', 'edit', 4),
-    'access arguments' => array('administer custom tokens'),
+    'access callback' => 'token_custom_type_forms_access',
+    'access arguments' => array(4),
     'file'           => 'token_custom.admin.inc',
     'type'           => MENU_CALLBACK,
   );
@@ -124,7 +131,8 @@ function token_custom_menu() {
     'title' => 'Delete custom token',
     'page callback'   => 'drupal_get_form',
     'page arguments'  => array('token_custom_type_delete_confirm_form', 4),
-    'access arguments' => array('administer custom tokens'),
+    'access callback' => 'token_custom_type_forms_access',
+    'access arguments' => array(4),
     'file'            => 'token_custom.admin.inc',
   );
 
@@ -179,12 +187,28 @@ function token_custom_tokens($type, $tokens, array $data = array(), array $optio
 }
 
 
+/**
+ * Access callback for the delete token type form.
+ *
+ * Do not allow deletion of the default custom type.
+ *
+ * @param object $type
+ *   The token type to edit/delete.
+ *
+ * @return bool
+ *   TRUE if user has permission AND type is not the default fixed one.
+ */
+function token_custom_type_forms_access($type) {
+  return user_access('administer custom tokens') && $type->machine_name != TOKEN_CUSTOM_DEFAULT_TYPE;
+}
+
+
 /*
  * CRUD routines
  * ----------
  *
  * We store the custom types as a variable, since we will
- * probably never have more than a 5 ou 6.
+ * probably never have more than 5 or 6.
  */
 
 /**
@@ -194,16 +218,19 @@ function token_custom_tokens($type, $tokens, array $data = array(), array $optio
  *   The custom token types.
  */
 function token_custom_type_load_multiple() {
-  // TODO Make sure this default token doesn't get deleted nor edited (used as default custom token type.).
-  $default = array(
-    'custom' => (object) array(
-      'name' => t('Custom'),
-      'machine_name' => 'custom',
-      'description' => t('User created tokens types using the Custom Tokens module.'),
-    ),
-  );
+  $default_type = new stdClass();
+  $default_type->name = t('Custom');
+  $default_type->machine_name = TOKEN_CUSTOM_DEFAULT_TYPE;
+  $default_type->description = t('User created tokens types using the Custom Tokens module.');
 
-  return variable_get('token_custom_types', $default);
+  // Load token types and make sure the custom type is always there,
+  // and wasn't deleted somewhere.
+  $types = variable_get('token_custom_types', array());
+  if (!isset($types[TOKEN_CUSTOM_DEFAULT_TYPE])) {
+    $types[TOKEN_CUSTOM_DEFAULT_TYPE] = $default_type;
+  }
+
+  return $types;
 }
 
 
@@ -229,15 +256,64 @@ function token_custom_type_load($type) {
  *   The custom type to save.
  */
 function token_custom_type_save($type) {
-  // TODO Handle inexistent types (We we deleted a type being used by some tokens. Give them a default value (Custom).)
-  $types = token_custom_type_load_multiple();
-
   if (!is_object($type)) {
     $type = (object) $type;
   }
 
+  if ($type->machine_name == TOKEN_CUSTOM_DEFAULT_TYPE) {
+    return FALSE;
+  }
+
+  $types = token_custom_type_load_multiple();
   $types[$type->machine_name] = $type;
   variable_set('token_custom_types', $types);
+  return $type;
+}
+
+
+/**
+ * Delete token type.
+ *
+ * @param string $delete_type
+ *   The token type's machine name.
+ *
+ * @return bool
+ *   FALSE if the token type didn't exist. TRUE otherwise.
+ */
+function token_custom_type_delete($delete_type) {
+
+  $types = token_custom_type_load_multiple();
+
+  if (empty($delete_type)
+      || !isset($types[$delete_type])) {
+    return FALSE;
+  }
+
+  // Do not allow deleting the default custom type.
+  if ($delete_type == TOKEN_CUSTOM_DEFAULT_TYPE) {
+    return FALSE;
+  }
+
+  // Make sure all tokens with the deleted type are given the custom type.
+  $tokens = token_custom_load_multiple();
+  foreach ($tokens as $token) {
+    if ($token->type == $delete_type) {
+      $token->type = TOKEN_CUSTOM_DEFAULT_TYPE;
+      $token->is_new = FALSE;
+      token_custom_save($token);
+    }
+  }
+
+  // Remove token type.
+  unset($types[$delete_type]);
+  variable_set('token_custom_types', $types);
+
+  // Clear the Token module's token cache table.
+  if (module_exists('token')) {
+    token_clear_cache();
+  }
+
+  return TRUE;
 }
 
 
@@ -302,6 +378,7 @@ function token_custom_load($machine_name = NULL) {
  */
 function token_custom_load_multiple($names = NULL) {
 
+  // FIXME Use drupal_static instead of static keyword.
   static $tokens = array();
   static $all_loaded = FALSE;
 
