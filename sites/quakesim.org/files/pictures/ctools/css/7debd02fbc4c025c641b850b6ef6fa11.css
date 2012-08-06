@@ -41,25 +41,30 @@
   padding-bottom: 0;
 }
 
-.panels-flexible-column-2-main {
+.panels-flexible-column-9-main {
   float: left;
   width: 99.0000%;
 }
 
-.panels-flexible-2-inside {
+.panels-flexible-9-inside {
   padding-right: 0px;
 }
 
-.panels-flexible-2 {
+.panels-flexible-9 {
   width: auto;
 }
 
-.panels-flexible-region-2-center {
+.panels-flexible-region-9-center {
   float: left;
-  width: 99.0000%;
+  width: 49.5000%;
 }
 
-.panels-flexible-row-2-main-row-inside {
+.panels-flexible-region-9-info {
+  float: left;
+  width: 49.5000%;
+}
+
+.panels-flexible-row-9-main-row-inside {
   padding-right: 0px;
 }
 
