@@ -43,14 +43,23 @@ class HttpClientCurlDelegate extends HttpClientDelegate {
 
     curl_setopt($ch, CURLOPT_USERAGENT, 'Drupal (+http://drupal.org/)');
 
-    curl_setopt_array($ch, $curlopts);
-
     curl_setopt($ch, CURLOPT_HEADER, 1);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $request->method);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_URL, $request->url());
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $request->data);
+
+    // Only add Content-Length if we actually have any content or if it is a POST
+    // or PUT request. Some non-standard servers get confused by Content-Length in
+    // at least HEAD/GET requests, and Squid always requires Content-Length in
+    // POST/PUT requests.
+    $content_length = strlen($request->data);
+    if ($content_length > 0 || $request->method == 'POST' || $request->method == 'PUT') {
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $request->data);
+    }
     curl_setopt($ch, CURLOPT_HTTPHEADER, $request->getHeaders());
+
+    curl_setopt_array($ch, $curlopts);
+
     return $ch;
   }
 }

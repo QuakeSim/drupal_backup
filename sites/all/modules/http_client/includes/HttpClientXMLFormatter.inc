@@ -72,6 +72,20 @@ class HttpClientXMLFormatter implements HttpClientFormatter {
   }
 
   /**
+   * Return the mime type that the formatter can parse.
+   */
+  public function accepts(){
+    return $this->mimeType();
+  }
+
+  /**
+   * Return the content type form the data the formatter generates.
+   */
+  public function contentType(){
+    return $this->mimeType();
+  }
+
+  /**
    * Unserializes data in the implemented format.
    *
    * @param string $data

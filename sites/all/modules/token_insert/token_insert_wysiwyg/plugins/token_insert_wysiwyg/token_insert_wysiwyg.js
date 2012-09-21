@@ -1,5 +1,10 @@
 // $Id
 (function ($) {
+function hideShowFieldset(buttonid, action) {
+  var $fieldset = $('#' + buttonid).closest('fieldset');
+  $fieldset[action]();
+}
+
 /**
  * Wysiwyg plugin button implementation for token_insert plugin.
  */
@@ -40,7 +45,7 @@ Drupal.wysiwyg.plugins.token_insert_wysiwyg = {
     // Location, where to fetch the dialog.
     var aurl = Drupal.settings.basePath + 'index.php?q=token_insert_wysiwyg/insert/' + form_id;
     dialogdiv = jQuery('<div id="token-insert-dialog"></div>');
-    dialogdiv.load(aurl + " .content #token-insert-wysiwyg-form", function(){
+    dialogdiv.load(aurl + " #token-insert-wysiwyg-form", function(){
       var dialogClose = function () {
         try {
           dialogdiv.dialog('destroy').remove();
@@ -98,6 +103,14 @@ Drupal.wysiwyg.plugins.token_insert_wysiwyg = {
    */
   attach: function(content, settings, instanceId) {
     content = content.replace(/<!--token_insert_wysiwyg-->/g, this._getPlaceholder(settings));
+    // hide the token_insert_text fieldset when wysiwyg is enabled,
+    // token_insert_test won't work then, users should use the
+    // wysiwyg plugin instead.
+    if (typeof Drupal.settings.token_insert !== 'undefined') {
+      $.each(Drupal.settings.token_insert.buttons, function(index, fieldid) {
+        hideShowFieldset(index, 'hide');
+      });
+    }
     return content;
   },
 
@@ -115,6 +128,12 @@ Drupal.wysiwyg.plugins.token_insert_wysiwyg = {
    */
   detach: function(content, settings, instanceId) {
     var $content = $('<div>' + content + '</div>');
+    // show the token_insert_text fieldset when wysiwyg is disabled
+    if (typeof Drupal.settings.token_insert !== 'undefined') {
+      $.each(Drupal.settings.token_insert.buttons, function(index, fieldid) {
+        hideShowFieldset(index, 'show');
+      });
+    }
     $.each($('img.token_insert_wysiwyg-token_insert_wysiwyg', $content), function (i, elem) {
       //...
       });

@@ -13,11 +13,6 @@ This module contains three modules:
 Dependencies
 ============
 -Token
-- For Token insert (wysiwyg): 
-  - JQuery update 6.x-2.0
-  - JQuery UI
-  - Jquery UI Dialog, you'll need http://jquery-ui.googlecode.com/files/jquery-ui-1.7.3.zip
-
 Recommended
 ===========
 - Token filter

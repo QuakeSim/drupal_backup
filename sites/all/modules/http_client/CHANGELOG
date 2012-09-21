@@ -1,5 +1,14 @@
 // $Id$
 
+Http Client 7.x-2.4, 2012-08-22
+-------------------------------
+Issue #1415974 by caseyamcl: Allow $curlopts to override the options set by HttpClientCurlDelegate::curl().
+Issue #1339906 by freblasty: Support multipart POST
+Issue #1502052 by Laurent_: Added missing methods accepts and contentType to the HttpClientXMLFormatter class.
+By Hugo Wetterberg: Parsing the response code so that we get an int instead of string.
+By Hugo Wetterberg: Only attempting to clone if the response is an object.
+Issue #1313374 by sandhurs: Only setting post fields when we're doing a PUSH, PUT or another request with a body.
+
 Http Client 7.x-2.3, 2012-02-27
 ------------------------------
 by Hugo Wetterberg: Accepting all 2xx response codes
