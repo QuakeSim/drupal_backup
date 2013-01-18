@@ -60,7 +60,7 @@ blockquote { background:transparent url('images/blockquote.png') no-repeat top l
 	padding: 0px;
 	margin: 10px 0px 10px 0px;
 	width: 1146px;
-	border: 1px solid #AAA;
+	border: none;
 }
 
 #header-inside-right { float:left; width: 280px; padding:0; }
@@ -69,7 +69,7 @@ blockquote { background:transparent url('images/blockquote.png') no-repeat top l
 
 #logo a{ padding:0; margin:0; display:block; overflow:hidden; }
 
-#logo img { padding:0; margin: 0px 0px 10px 0px; width:1150px; display:block; overflow:hidden; border: 1px solid #021A40; }
+#logo img { padding:0; margin: 0px 0px 10px 0px; width:1150px; display:block; overflow:hidden; border: none }
 
 #banner  { clear:both; border-bottom:1px solid #fcfcfc; overflow: hidden; }
 
@@ -525,6 +525,10 @@ ul.social-bookmarks li.delicious a { background:url('images/social-media-delicio
 	padding-right: 20px;
 }
 
+.jcarousel-container .views-field-field-image img {
+
+}
+
 .jcarousel-container .views-field-title {
 	font-weight: bold;
 	font-size: 16px;
@@ -541,6 +545,7 @@ ul.social-bookmarks li.delicious a { background:url('images/social-media-delicio
 
 #quicktabs-people .views-row {
 	padding: 10px;
+	min-height: 100px;
 }
 
 .ui-widget {
@@ -550,5 +555,9 @@ ul.social-bookmarks li.delicious a { background:url('images/social-media-delicio
 
 .pane-title {
 	margin: 5px 0px 15px 0px !important;
-}	
+}
+
+.field-type-image {
+	float: left;
+	margin: 0px 20px 0px 0px;
 }

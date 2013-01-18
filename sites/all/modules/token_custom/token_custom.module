@@ -485,11 +485,10 @@ function token_custom_token_render($machine_name, $code, $data, $options) {
    */
   if ($format == 'php_code') {
 
-    /*
-     * Add a random hash to make sure no other encapsulated token_replace call
-     * will get the same (or change) this $data array.
-     */
-    $static_key = 'token_custom_' . drupal_random_bytes(10);
+    // Generate a unique static key.
+    $static_count = &drupal_static('token_custom_data:counter', 0);
+    $static_key = 'token_custom_data:' . $static_count;
+    $static_count ++;
 
     /*
      * Store value in static cache and leave it there.
@@ -508,6 +507,10 @@ function token_custom_token_render($machine_name, $code, $data, $options) {
   } ?>' . $code;
 
     $output = check_markup($code, $format);
+
+    // Clear static variable to potentially free memory.
+    drupal_static_reset($static_key);
+
     return $output;
   }
   else {

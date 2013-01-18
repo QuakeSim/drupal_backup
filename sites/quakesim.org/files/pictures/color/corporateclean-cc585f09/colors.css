@@ -61,7 +61,7 @@ background-image: linear-gradient(top, #d2d2d2 0%, #d2d2d2 100%);
 /* IE6-9 */ 
 filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#d2d2d2', endColorstr='#d2d2d2');
  
-border-bottom:1px solid #fcfcfc; }
+border-bottom:1px solid #343434; }
 
 #content {
 background: #fdfdfd;
